@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        // const str = `define(['./Bar.class', '../../../lib/configBase/commonMethod'], function(Bar, commonMethod) {
+        //     return { component: component }
+        // })`
+
+        const str = `define(['./Bar.class', '../../../lib/configBase/commonMethod'], function(Bar, commonMethod) {
+            return { component: component }
+        })`
+
+
+        // let result = str.replace(/\[\'\.\/\S+\.class\'\,\s+\'\S+\'\]/g, ($0, $1) => {
+        // let result = str.replace(/\['.\S+.class',\s+'\S+']/g, ($0, $1) => {
+        // let result = str.replace(/define\(|(\['.\S+.class',\s+'\S+'])|(,\s*function\(\S+,\s+\S+\s+{)/g, ($0, $1) => {
+        var moduleStr = '';
+        let result = str.replace(/\['.\S+.class',\s+'\S+']/g, ($0, $1) => {
+            // console.log($0, $1)
+
+            $0.substring(1, $0.length - 1).split(',').forEach(item => {
+                let moduleName, modulePath = item;
+                if (/.class/g.test(item)) {
+                    moduleName = item.replace(/\.\/|(.class)|\s*/g, '')
+                } else {
+                    moduleName = item.replace(/(\.\.\/)+\S+\/|\s*/g, '')
+                }
+                moduleStr += `
+                    import ${moduleName.substring(1, moduleName.length - 1)} from ${modulePath}
+                `
+            })
+            return ''
+        }).replace(/define\(\,\s*\S+\,\s*\S+\)\s*\{/g, '')
+            .replace(/return\s*\{\s*\S+:\s*\S+\s*\}/g, ($0, $1) => {
+                const name = $0.replace(/return\s*\{\s*\S+:|\s*\}/g, '');
+                return `export default ${name}`
+            })
+        result = moduleStr + result
+        // return { component: component }
+        console.log(result.substring(0, result.length - 2))
+        // console.log(result.substring(0, result.length - 2))
+        // console.log(moduleStr)
+
+    </script>
+</body>
+
+</html>
